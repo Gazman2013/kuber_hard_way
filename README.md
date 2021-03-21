@@ -132,4 +132,64 @@ Warning: Permanently added 'compute.4360593454594143812' (ECDSA) to the list of 
 ca.pem                                                                                                                                       100% 1318    12.1KB/s   00:00    
 worker-2-key.pem                                                                                                                             100% 1679    15.3KB/s   00:00    
 worker-2.pem                                                                                                                                 100% 1493    13.6KB/s   00:00    
-25. 
+25.for instance in worker-0 worker-1 worker-2; do
+  gcloud compute scp ca.pem ${instance}-key.pem ${instance}.pem ${instance}:~/
+done
+26. for instance in controller-0 controller-1 controller-2; do
+  gcloud compute scp ca.pem ca-key.pem kubernetes-key.pem kubernetes.pem \
+    service-account-key.pem service-account.pem ${instance}:~/
+done
+27. KUBERNETES_PUBLIC_ADDRESS=$(gcloud compute addresses describe kubernetes-the-hard-way \
+  --region $(gcloud config get-value compute/region) \
+  --format 'value(address)')
+28. for instance in worker-0 worker-1 worker-2; do
+  kubectl config set-cluster kubernetes-the-hard-way \
+    --certificate-authority=ca.pem \
+    --embed-certs=true \
+    --server=https://${KUBERNETES_PUBLIC_ADDRESS}:6443 \
+    --kubeconfig=${instance}.kubeconfig
+
+  kubectl config set-credentials system:node:${instance} \
+    --client-certificate=${instance}.pem \
+    --client-key=${instance}-key.pem \
+    --embed-certs=true \
+    --kubeconfig=${instance}.kubeconfig
+
+  kubectl config set-context default \
+    --cluster=kubernetes-the-hard-way \
+    --user=system:node:${instance} \
+    --kubeconfig=${instance}.kubeconfig
+
+  kubectl config use-context default --kubeconfig=${instance}.kubeconfig
+done
+29. I tak dalee
+30. for instance in worker-0 worker-1 worker-2; do
+>   gcloud compute scp ${instance}.kubeconfig kube-proxy.kubeconfig ${instance}:~/
+> done
+worker-0.kubeconfig                                                                                                                          100% 6387    58.3KB/s   00:00    
+kube-proxy.kubeconfig                                                                                                                        100% 6321    57.7KB/s   00:00    
+worker-1.kubeconfig                                                                                                                          100% 6387    58.4KB/s   00:00    
+kube-proxy.kubeconfig                                                                                                                        100% 6321    57.8KB/s   00:00    
+worker-2.kubeconfig                                                                                                                          100% 6387    57.2KB/s   00:00    
+kube-proxy.kubeconfig                                                                                                                        100% 6321    57.6KB/s   00:00    
+root@kuber:/home/kuber# for instance in controller-0 controller-1 controller-2; do
+>   gcloud compute scp admin.kubeconfig kube-controller-manager.kubeconfig kube-scheduler.kubeconfig ${instance}:~/
+> done
+admin.kubeconfig                                                                                                                             100% 6265    56.9KB/s   00:00    
+kube-controller-manager.kubeconfig                                                                                                           100% 6391    58.7KB/s   00:00    
+kube-scheduler.kubeconfig                                                                                                                    100% 6341    58.2KB/s   00:00    
+admin.kubeconfig                                                                                                                             100% 6265    57.2KB/s   00:00    
+kube-controller-manager.kubeconfig                                                                                                           100% 6391    58.6KB/s   00:00    
+kube-scheduler.kubeconfig                                                                                                                    100% 6341    58.2KB/s   00:00    
+admin.kubeconfig                                                                                                                             100% 6265    57.2KB/s   00:00    
+kube-controller-manager.kubeconfig                                                                                                           100% 6391    57.7KB/s   00:00    
+kube-scheduler.kubeconfig
+31. Generating the Data Encryption Config and Key
+32. 32. for instance in controller-0 controller-1 controller-2; do
+>   gcloud compute scp encryption-config.yaml ${instance}:~/
+> done
+encryption-config.yaml                                                                                                                         
+encryption-config.yaml                                                                                                                         
+encryption-config.yaml    
+33. Bootstrapping the etcd Cluster
+34. 
