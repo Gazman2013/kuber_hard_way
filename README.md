@@ -179,7 +179,8 @@ admin.kubeconfig                                                                
 kube-controller-manager.kubeconfig                                                                                                           100% 6391    58.7KB/s   00:00    
 kube-scheduler.kubeconfig                                                                                                                    100% 6341    58.2KB/s   00:00    
 admin.kubeconfig                                                                                                                             100% 6265    57.2KB/s   00:00    
-kube-controller-manager.kubeconfig                                                                                                           100% 6391    58.6KB/s   00:00    
+kube-controller-man
+ager.kubeconfig                                                                                                           100% 6391    58.6KB/s   00:00    
 kube-scheduler.kubeconfig                                                                                                                    100% 6341    58.2KB/s   00:00    
 admin.kubeconfig                                                                                                                             100% 6265    57.2KB/s   00:00    
 kube-controller-manager.kubeconfig                                                                                                           100% 6391    57.7KB/s   00:00    
@@ -192,4 +193,15 @@ encryption-config.yaml
 encryption-config.yaml                                                                                                                         
 encryption-config.yaml    
 33. Bootstrapping the etcd Cluster
-34. 
+34. gcloud compute ssh controller-0
+35. wget -q --show-progress --https-only --timestamping \
+  "https://github.com/etcd-io/etcd/releases/download/v3.4.10/etcd-v3.4.10-linux-amd64.tar.gz"
+36. {
+  sudo mkdir -p /etc/etcd /var/lib/etcd
+  sudo chmod 700 /var/lib/etcd
+  sudo cp ca.pem kubernetes-key.pem kubernetes.pem /etc/etcd/
+}
+37. INTERNAL_IP=$(curl -s -H "Metadata-Flavor: Google" \
+  http://metadata.google.internal/computeMetadata/v1/instance/network-interfaces/0/ip)
+38. Bootstrapping the Kubernetes Control Plane
+39. Ostanovilsya na kubectl get componentstatuses --kubeconfig admin.kubeconfig
